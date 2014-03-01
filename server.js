@@ -1,39 +1,63 @@
-var accessToken = process.env.TOKEN;
+var githubToken = process.env.GITHUB_TOKEN;
 var pathJoin = require('path').join;
 var nodeCache = require('js-git/lib/node-fs-cache')(pathJoin(__dirname, "cache"));
-var http = require('http');
+require('./color.js');
 
-// Make console.log colorized
-{
-  var inspect = require('util').inspect;
-  var realLog = console.log;
-  console.log = function () {
-    var args = Array.prototype.slice.call(arguments).map(function (item, i) {
-      if (!i && typeof item === 'string') return item;
-      return inspect(item, {colors:true});
-    });
-    realLog.apply(null, args);
-  };
-}
+
+var http = require('http');
+var modes = require('js-git/lib/modes');
+
 
 var repo = mountGithub("creationix/exploder");
 
-repo.readRef("refs/heads/master", function (err, ref) {
+// repo.readRef("refs/heads/master", function (err, ref) {
+//   if (err) throw err;
+//   repo.loadAs("commit", ref, function (err, commit) {
+//     if (err) throw err;
+//     console.log("COMMIT", commit);
+//   });
+// });
+
+repo.logWalk("HEAD", function (err, log) {
   if (err) throw err;
-  repo.loadAs("commit", ref, function (err, commit) {
+
+  log.read(onCommit);
+  var treeStream;
+
+  function onCommit(err, item) {
     if (err) throw err;
-    console.log("COMMIT", commit);
-  });
+    console.log(item);
+    if (item) repo.treeWalk(item.tree, onTreeStream);
+  }
+
+  function onTreeStream(err, stream) {
+    if (err) throw err;
+    treeStream = stream;
+    treeStream.read(onItem);
+  }
+
+  function onItem(err, item) {
+    if (err) throw err;
+    if (item) {
+      console.log(item.hash, modes.toType(item.mode), item.path);
+      treeStream.read(onItem);
+    }
+    else log.read(onCommit);
+  }
 });
+
 
 // Create repos from githubName like `creationix/tedit-host`
 function mountGithub(githubName) {
   var repo = {};
-  var githubToken = process.env.GITHUB_TOKEN;
   if (!githubToken) throw new Error("Missing GITHUB_TOKEN access token in env");
   require('js-git/mixins/github-db')(repo, githubName, githubToken);
   // Github has this built-in, but it's currently very buggy
   require('js-git/mixins/create-tree')(repo);
+
+  // Add walker helpers
+  require('js-git/mixins/walkers')(repo);
+
   // // Cache github objects locally in indexeddb
   require('js-git/mixins/add-cache')(repo, nodeCache);
 
