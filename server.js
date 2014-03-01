@@ -7,18 +7,9 @@ require('./color.js');
 var http = require('http');
 var modes = require('js-git/lib/modes');
 
+var configRepo = mountGithub("creationix/tedit-sites");
 
-var repo = mountGithub("creationix/exploder");
-
-// repo.readRef("refs/heads/master", function (err, ref) {
-//   if (err) throw err;
-//   repo.loadAs("commit", ref, function (err, commit) {
-//     if (err) throw err;
-//     console.log("COMMIT", commit);
-//   });
-// });
-
-repo.logWalk("HEAD", function (err, log) {
+configRepo.logWalk("HEAD", function (err, log) {
   if (err) throw err;
 
   log.read(onCommit);
@@ -27,7 +18,7 @@ repo.logWalk("HEAD", function (err, log) {
   function onCommit(err, item) {
     if (err) throw err;
     console.log(item);
-    if (item) repo.treeWalk(item.tree, onTreeStream);
+    if (item) configRepo.treeWalk(item.tree, onTreeStream);
   }
 
   function onTreeStream(err, stream) {
