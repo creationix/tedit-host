@@ -70,15 +70,17 @@ var server = http.createServer(function (req, res) {
             return serve();
           }
           // Otherwise send the raw JSON
-          res.statusCode = 200;
+          var body = new Buffer(JSON.stringify(tree) + "\n");
           res.setHeader("Content-Type", "application/json");
-          return res.end(JSON.stringify(tree) + "\n");
+          res.setHeader("Content-Length", body.length);
+          return res.end(body);
         });
       }
 
       result.fetch(function (err, body) {
         if (err) return error(err);
         res.setHeader("Content-Type", result.mime || getMime(path));
+        res.setHeader("Content-Length", body.length);
         res.end(body);
       });
 
