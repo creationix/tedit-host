@@ -1,14 +1,14 @@
 require('./color.js'); // Make console.log colorful
-
-var mountRepo = require('./mount.js');
 var http = require('http');
-
-
-
-var configRepo = mountRepo("creationix/tedit-sites");
+var getSite = require('./config.js');
 
 var server = http.createServer(function (req, res) {
-  console.log(req);
+  var host = req.headers.host.split(":")[0];
+  getSite(host, function (err, config) {
+    if (err) throw err;
+    console.log(host, req.method, req.url, config);
+    res.end(JSON.stringify(config));
+  });
 });
 
 server.listen(8080, function () {

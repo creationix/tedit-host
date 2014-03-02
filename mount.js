@@ -4,10 +4,11 @@ var nodeCache = require('js-git/lib/node-fs-cache')(pathJoin(__dirname, "cache")
 module.exports = mountGithub;
 
 // Create repos from githubName like `creationix/tedit-host`
-function mountGithub(githubName) {
+function mountGithub(githubName, token) {
   var repo = {};
-  if (!githubToken) throw new Error("Missing GITHUB_TOKEN access token in env");
-  require('js-git/mixins/github-db')(repo, githubName, githubToken);
+  token = token || githubToken;
+  if (!token) throw new Error("Missing GITHUB_TOKEN access token in env");
+  require('js-git/mixins/github-db')(repo, githubName, token);
   // Github has this built-in, but it's currently very buggy
   require('js-git/mixins/create-tree')(repo);
 
