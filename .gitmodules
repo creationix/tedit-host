@@ -10,3 +10,7 @@
 	url = git@github.com:creationix/bodec.git
 	ref = refs/heads/master
 	path = node_modules/bodec
+[submodule "node_modules/jon-parse"]
+	url = git@github.com:creationix/jon-parse.git
+	ref = refs/heads/master
+	path = node_modules/jon-parse
