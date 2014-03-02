@@ -1,12 +1,15 @@
 var pathJoin = require('path').join;
 var githubToken = process.env.GITHUB_TOKEN;
 var nodeCache = require('js-git/lib/node-fs-cache')(pathJoin(__dirname, "cache"));
-module.exports = mountGithub;
 
-// Create repos from githubName like `creationix/tedit-host`
-function mountGithub(githubName, token) {
+module.exports = createRepo;
+// config.name  - githubName like `creationix/tedit-host`
+// config.token - github auth token
+function createRepo(config) {
   var repo = {};
-  token = token || githubToken;
+  var token = config.token || githubToken;
+  if (!config.github) throw new Error("Only github mount repos allowed");
+  var githubName = getGithubName(config.url);
   if (!token) throw new Error("Missing GITHUB_TOKEN access token in env");
   require('js-git/mixins/github-db')(repo, githubName, token);
   // Github has this built-in, but it's currently very buggy
@@ -24,4 +27,10 @@ function mountGithub(githubName, token) {
   // // Combine concurrent read requests for the same hash
   require('js-git/mixins/read-combiner')(repo);
   return repo;
+}
+
+function getGithubName(url) {
+  var match = url.match(/github.com[:\/](.*?)(?:\.git)?$/);
+  if (!match) throw new Error("Url is not github repo: " + url);
+  return match[1];
 }

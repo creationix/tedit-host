@@ -1,18 +1,23 @@
-var mountRepo = require('./mount.js');
 var binary = require('bodec');
 var jonParse = require('jon-parse');
-var createSite = require('./site.js');
 var modes = require('js-git/lib/modes');
 
-var configRepo = mountRepo("creationix/tedit-sites");
+var createRepo = require('./repo.js');
+var createSite = require('./site.js');
+
+var configRepo = createRepo({
+  url: "git@github.com:creationix/tedit-sites.git",
+  github: true
+});
+
 module.exports = getSite;
 
 var headHash, last;
 var sites = {};
 function getSite(domain, callback) {
-  var blobHash;
+  var blobHash, config;
   var now = Date.now();
-  if (headHash && now - last < 1000) return onHash(null, headHash);
+  if (headHash && now - last < 10000) return onHash(null, headHash);
   last = now;
   return configRepo.readRef("refs/heads/master", onHash);
 
@@ -44,7 +49,6 @@ function getSite(domain, callback) {
 
   function onBlob(err, blob) {
     if (!blob) return callback(err || new Error("Missing blob"));
-    var config;
     try {
       var jon = binary.toUnicode(blob);
       config = jonParse(jon);
@@ -52,8 +56,15 @@ function getSite(domain, callback) {
     catch (err) {
       return callback(err);
     }
-    var site = sites[domain] = createSite(config);
+    createSite(config, onSite);
+  }
+
+  function onSite(err, site) {
+    if (err) return callback(err);
+    sites[domain] = site;
     site.hash = blobHash;
+    site.config = config;
     callback(null, site);
   }
+
 }

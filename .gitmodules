@@ -14,3 +14,19 @@
 	url = git@github.com:creationix/jon-parse.git
 	ref = refs/heads/master
 	path = node_modules/jon-parse
+[submodule "node_modules/carallel"]
+	url = git@github.com:creationix/carallel.git
+	ref = refs/heads/master
+	path = node_modules/carallel
+[submodule "node_modules/pathjoin"]
+	url = git@github.com:creationix/pathjoin.git
+	ref = refs/heads/master
+	path = node_modules/pathjoin
+[submodule "node_modules/git-tree"]
+	url = git@github.com:creationix/git-tree.git
+	ref = refs/heads/master
+	path = node_modules/git-tree
+[submodule "node_modules/simple-mime"]
+	url = git@github.com:creationix/simple-mime.git
+	ref = refs/heads/master
+	path = node_modules/simple-mime
