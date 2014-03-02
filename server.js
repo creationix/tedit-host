@@ -11,6 +11,6 @@ var server = http.createServer(function (req, res) {
   });
 });
 
-server.listen(8080, function () {
-  console.log("Tedit Host Server at http://localhost:8080/");
+server.listen(process.env.PORT || 8080, function () {
+  console.log("Tedit Host Server at http://localhost:%s/", server.address().port);
 });
