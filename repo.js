@@ -7,11 +7,16 @@ module.exports = createRepo;
 // config.token - github auth token
 function createRepo(config) {
   var repo = {};
-  var token = config.token || githubToken;
-  if (!config.github) throw new Error("Only github mount repos allowed");
-  var githubName = getGithubName(config.url);
-  if (!token) throw new Error("Missing GITHUB_TOKEN access token in env");
-  require('js-git/mixins/github-db')(repo, githubName, token);
+  if (config.github) {
+    var token = config.token || githubToken;
+    var githubName = getGithubName(config.url);
+    if (!token) throw new Error("Missing GITHUB_TOKEN access token in env");
+    require('js-git/mixins/github-db')(repo, githubName, token);
+  }
+  else {
+    require('js-git/mixins/mem-db')(repo);
+  }
+
   // Github has this built-in, but it's currently very buggy
   require('js-git/mixins/create-tree')(repo);
 
