@@ -30,3 +30,7 @@
 	url = git@github.com:creationix/simple-mime.git
 	ref = refs/heads/master
 	path = node_modules/simple-mime
+[submodule "node_modules/push-to-pull"]
+	url = git@github.com:creationix/push-to-pull.git
+	ref = refs/heads/master
+	path = node_modules/push-to-pull
