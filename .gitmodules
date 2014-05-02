@@ -34,3 +34,12 @@
 	url = git@github.com:creationix/push-to-pull.git
 	ref = refs/heads/master
 	path = node_modules/push-to-pull
+[submodule "node_modules/mine"]
+	path = node_modules/mine
+	url = git@github.com:creationix/mine.git
+[submodule "node_modules/pako"]
+	path = node_modules/pako
+	url = git@github.com:nodeca/pako.git
+[submodule "node_modules/js-github"]
+	path = node_modules/js-github
+	url = git@github.com:creationix/js-github.git

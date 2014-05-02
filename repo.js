@@ -4,10 +4,48 @@ var nodeCache = {
   rootPath: pathJoin(__dirname, "cache")
 };
 var fs = require('fs');
+var dirname = require('path').dirname;
 require('js-git/mixins/fs-db')(nodeCache, {
-  readFile: fs.readFile,
-  writeFile: fs.writeFile
+  readFile: function (path, callback) {
+    fs.readFile(path, function (err, buffer) {
+      if (err) {
+        if (err.code === "ENOENT") return callback();
+        return callback(err);
+      }
+      callback(null, buffer);
+    });
+  },
+  writeFile: function (path, buffer, callback) {
+    mkdirp(dirname(path), function (err) {
+      if (err) return callback(err);
+      fs.writeFile(path, buffer, callback);
+    });
+  },
+  readDir: function (path, callback) {
+    fs.readdir(path, function (err, results) {
+      if (err) {
+        if (err.code === "ENOENT") return callback();
+        return callback(err);
+      }
+      return callback(null, results);
+    });
+  }
 });
+
+function mkdirp(path, callback) {
+  fs.mkdir(path, function (err) {
+    if (err) {
+      if (err.code === "ENOENT") return mkdirp(dirname(path), function (err) {
+        if (err) return callback(err);
+        fs.mkdir(path, callback);
+      });
+      if (err.code === "EEXIST") return callback();
+      return callback(err);
+    }
+    callback();
+  });
+}
+
 
 module.exports = createRepo;
 // config.name  - githubName like `creationix/tedit-host`
@@ -18,7 +56,7 @@ function createRepo(config) {
     var token = config.token || githubToken;
     var githubName = getGithubName(config.url);
     if (!token) throw new Error("Missing GITHUB_TOKEN access token in env");
-    require('js-git/mixins/github-db')(repo, githubName, token);
+    require('js-github/mixins/github-db')(repo, githubName, token);
   }
   else {
     require('js-git/mixins/mem-db')(repo);
