@@ -1,6 +1,13 @@
 var pathJoin = require('path').join;
 var githubToken = process.env.GITHUB_TOKEN;
-var nodeCache = require('js-git/lib/node-fs-cache')(pathJoin(__dirname, "cache"));
+var nodeCache = {
+  rootPath: pathJoin(__dirname, "cache")
+};
+var fs = require('fs');
+require('js-git/mixins/fs-db')(nodeCache, {
+  readFile: fs.readFile,
+  writeFile: fs.writeFile
+});
 
 module.exports = createRepo;
 // config.name  - githubName like `creationix/tedit-host`
